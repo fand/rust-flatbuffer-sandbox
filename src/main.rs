@@ -39,12 +39,17 @@ fn bar_to_fbs<'a, 'fbb>(fbb: &'a mut FlatBufferBuilder<'fbb>, foo: Bar) -> WIPOf
 
 fn main() -> anyhow::Result<()> {
     // Serialize
-    let bar1 = bar("bar");
+    // let bar1 = bar("bar");
 
-    let mut fbb = flatbuffers::FlatBufferBuilder::new();
-    let offset = bar_to_fbs(&mut fbb, bar1);
-    fbb.finish(offset, None);
-    fs::write("./out.bin", fbb.finished_data())?;
+    // let mut fbb = flatbuffers::FlatBufferBuilder::new();
+    // let offset = bar_to_fbs(&mut fbb, bar1);
+    // fbb.finish(offset, None);
+    // fs::write("./out.bin", fbb.finished_data())?;
+
+    // Deserialize
+    let bin = include_bytes!("../out.bin");
+    let data = flatbuffers::root::<FbsBar>(bin)?;
+    dbg!(data);
 
     Ok(())
 }
