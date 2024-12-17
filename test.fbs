@@ -1,7 +1,4 @@
-table FbsFoo {
-    name: string;
-    a: int;
-}
+include "test2.fbs";
 
 table FbsBar {
     name: string;

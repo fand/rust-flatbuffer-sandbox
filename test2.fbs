@@ -1,0 +1,4 @@
+table FbsFoo {
+    name: string;
+    a: int;
+}

@@ -1,10 +1,12 @@
 use std::fs;
 
 use anyhow;
-use fbs::test_generated::{FbsBar, FbsBarArgs, FbsFoo, FbsFooArgs};
 use flatbuffers::{self, FlatBufferBuilder, WIPOffset};
 
-mod fbs;
+mod test2_generated;
+mod test_generated;
+use test2_generated::{FbsFoo, FbsFooArgs};
+use test_generated::{FbsBar, FbsBarArgs};
 
 #[derive(Clone, Debug)]
 struct Foo {
