@@ -1,0 +1,8 @@
+table FbsFoo {
+    name: string;
+    a: int;
+}
+
+table FbsBar {
+    name: string;
+}
