@@ -6,13 +6,16 @@ use flatbuffers::{self, FlatBufferBuilder, WIPOffset};
 
 mod fbs;
 
+#[derive(Clone, Debug)]
 struct Foo {
     name: String,
     a: i32,
 }
 
+#[derive(Clone, Debug)]
 struct Bar {
     name: String,
+    foo: Vec<Foo>,
 }
 
 fn foo(name: &str, a: i32) -> Foo {
@@ -21,9 +24,10 @@ fn foo(name: &str, a: i32) -> Foo {
         a,
     }
 }
-fn bar(name: &str) -> Bar {
+fn bar(name: &str, foo: &Vec<Foo>) -> Bar {
     Bar {
         name: name.to_string(),
+        foo: foo.clone(),
     }
 }
 
@@ -32,9 +36,17 @@ fn foo_to_fbs<'a, 'fbb>(fbb: &'a mut FlatBufferBuilder<'fbb>, foo: Foo) -> WIPOf
     FbsFoo::create(fbb, &FbsFooArgs { name, a: foo.a })
 }
 
-fn bar_to_fbs<'a, 'fbb>(fbb: &'a mut FlatBufferBuilder<'fbb>, foo: Bar) -> WIPOffset<FbsBar<'fbb>> {
-    let name = Some(fbb.create_string(&foo.name));
-    FbsBar::create(fbb, &FbsBarArgs { name })
+fn bar_to_fbs<'a, 'fbb>(fbb: &'a mut FlatBufferBuilder<'fbb>, bar: Bar) -> WIPOffset<FbsBar<'fbb>> {
+    let name = Some(fbb.create_string(&bar.name));
+
+    let items = bar
+        .foo
+        .into_iter()
+        .map(|f| foo_to_fbs(fbb, f))
+        .collect::<Vec<_>>();
+    let foo = Some(fbb.create_vector(&items));
+
+    FbsBar::create(fbb, &FbsBarArgs { name, foo })
 }
 
 fn main() -> anyhow::Result<()> {
@@ -48,7 +60,12 @@ fn main() -> anyhow::Result<()> {
 
     // Deserialize
     let bin = include_bytes!("../out.bin");
-    let data = flatbuffers::root::<FbsBar>(bin)?;
+
+    let opts = flatbuffers::VerifierOptions {
+        max_depth: 10,
+        ..Default::default()
+    };
+    let data = flatbuffers::root_with_opts::<FbsBar>(&opts, bin)?;
     dbg!(data);
 
     Ok(())

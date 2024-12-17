@@ -5,4 +5,5 @@ table FbsFoo {
 
 table FbsBar {
     name: string;
+    foo: [FbsFoo];
 }

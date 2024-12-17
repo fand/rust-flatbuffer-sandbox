@@ -140,6 +140,7 @@ impl<'a> flatbuffers::Follow<'a> for FbsBar<'a> {
 
 impl<'a> FbsBar<'a> {
   pub const VT_NAME: flatbuffers::VOffsetT = 4;
+  pub const VT_FOO: flatbuffers::VOffsetT = 6;
 
   #[inline]
   pub unsafe fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
@@ -151,6 +152,7 @@ impl<'a> FbsBar<'a> {
     args: &'args FbsBarArgs<'args>
   ) -> flatbuffers::WIPOffset<FbsBar<'bldr>> {
     let mut builder = FbsBarBuilder::new(_fbb);
+    if let Some(x) = args.foo { builder.add_foo(x); }
     if let Some(x) = args.name { builder.add_name(x); }
     builder.finish()
   }
@@ -163,6 +165,13 @@ impl<'a> FbsBar<'a> {
     // which contains a valid value in this slot
     unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(FbsBar::VT_NAME, None)}
   }
+  #[inline]
+  pub fn foo(&self) -> Option<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<FbsFoo<'a>>>> {
+    // Safety:
+    // Created from valid Table for this object
+    // which contains a valid value in this slot
+    unsafe { self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<FbsFoo>>>>(FbsBar::VT_FOO, None)}
+  }
 }
 
 impl flatbuffers::Verifiable for FbsBar<'_> {
@@ -173,18 +182,21 @@ impl flatbuffers::Verifiable for FbsBar<'_> {
     use self::flatbuffers::Verifiable;
     v.visit_table(pos)?
      .visit_field::<flatbuffers::ForwardsUOffset<&str>>("name", Self::VT_NAME, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<FbsFoo>>>>("foo", Self::VT_FOO, false)?
      .finish();
     Ok(())
   }
 }
 pub struct FbsBarArgs<'a> {
     pub name: Option<flatbuffers::WIPOffset<&'a str>>,
+    pub foo: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<FbsFoo<'a>>>>>,
 }
 impl<'a> Default for FbsBarArgs<'a> {
   #[inline]
   fn default() -> Self {
     FbsBarArgs {
       name: None,
+      foo: None,
     }
   }
 }
@@ -197,6 +209,10 @@ impl<'a: 'b, 'b> FbsBarBuilder<'a, 'b> {
   #[inline]
   pub fn add_name(&mut self, name: flatbuffers::WIPOffset<&'b  str>) {
     self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(FbsBar::VT_NAME, name);
+  }
+  #[inline]
+  pub fn add_foo(&mut self, foo: flatbuffers::WIPOffset<flatbuffers::Vector<'b , flatbuffers::ForwardsUOffset<FbsFoo<'b >>>>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(FbsBar::VT_FOO, foo);
   }
   #[inline]
   pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>) -> FbsBarBuilder<'a, 'b> {
@@ -217,6 +233,7 @@ impl core::fmt::Debug for FbsBar<'_> {
   fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
     let mut ds = f.debug_struct("FbsBar");
       ds.field("name", &self.name());
+      ds.field("foo", &self.foo());
       ds.finish()
   }
 }
